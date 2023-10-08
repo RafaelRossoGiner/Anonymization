@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Available Datasets
+</h1>
+<h2 class="subtittle">
+  Select {{nDatasets}} dataset{{'' if nDatasets==1 else 's'}}
+</h2>
+<div class="box">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="notification is-{{category}}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <form action="{{url_for('FrontEndWeb.selectDatasets')}}" method="POST">
+        {% if userDatasets %}
+        <h2 class="subtitle has-text-black">
+            Your datasets
+        </h2>
+        <div class="table-container">
+            <table class="table is-fullwidth is-scrollable">
+                <thead>
+                    <tr>
+                        {% for header, attribute in headersToAttributes.items() %}
+                        <th {{'class=has-text-right' if header == "Dimensions" or header == "Entries" else ''}}>
+                            {% if attribute != '' %}
+                            <button class="button is-link" name="order" formmethod="get" value="{{attribute}}.{{ordDirection}}.0">
+                                {{header}} &nbsp
+                                {% if ordColumn and ordColumn == attribute and ordTable == 0 %}
+                                    <ion-icon name="caret-{{'up' if ordDirection == 1 else 'down'}}-outline"></ion-icon>
+                                {% endif %}
+                            </button>
+                            {% else %}
+                                {{header}}
+                            {% endif %}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dataset in userDatasets: %}
+                    <tr>
+                        <td> {{dataset.datasetName}} </td>
+                        <td class="has-text-right"> {{dataset.dimensions}} </td>
+                        <td class="has-text-right"> {{dataset.entries}} </td>
+                        <td> <input type="{{'radio' if nDatasets==1 else 'checkbox'}}" name="dataset" value="{{dataset.id}}" /></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <h2 class="subtitle has-text-black">
+            You have not uploaded any datasets yet
+            <button class="button is-block is-success is-large is-fullwidth" name="UploaddDatasets">Upload Datasets</button>
+        </h2>
+        {% endif %}
+        {% if externalDatasets %}
+        <h2 class="subtitle has-text-black">
+            Public datasets
+        </h2>
+        <div class="table-container">
+            <table class="table is-fullwidth is-scrollable">
+                <thead>
+                    <thead>
+                    <tr>
+                        {% for header, attribute in headersToAttributes.items() %}
+                        <th {{'class=has-text-right' if header == "Dimensions" or header == "Entries" else ''}}>
+                            {{header}}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                </thead>
+                <tbody>
+                    {% for dataset in externalDatasets: %}
+                    <tr>
+                        <td> {{dataset.datasetName}} </td>
+                        <td class="has-text-right"> {{dataset.dimensions}} </td>
+                        <td class="has-text-right"> {{dataset.entries}} </td>
+                        <td> <input type="{{'radio' if nDatasets==1 else 'checkbox'}}" name="dataset" value="{{dataset.id}}" /></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <h2 class="subtittle">
+            There are no datasets shared with you
+        </h2>
+        {% endif %}
+        <input type="hidden" name="action" value="{{action}}">
+        <button class="button is-block is-info is-large is-fullwidth">Select Dataset</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="is-parent is-vertical">
+    <div class="tile box is-child">
+        <h1>Dataset {{dataset.datasetName}}!</h1>
+        {% block description %}
+        {% endblock %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>Cluster ID</th>
+                        <th>Size</th>
+                        <th>Dataset Representation</th>
+                        <th>Information Loss</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cluster, nDataPoints in clusterSizes.items(): %}
+                        <tr>
+                            <td>
+                                {{cluster}}
+                            </td>
+                            <td>
+                                {{(nDataPoints/nTotalDataPoints*100)|round(3)}}% {{nDataPoints}}/{{nTotalDataPoints}}
+                            </td>
+                            <td>
+                                <progress class="progress is-link" id="progressBar" value="{{nDataPoints/nTotalDataPoints*100}}" max="100">{{nDataPoints}}</progress>
+                            </td>
+                            <td>
+                                {{(loss_vector[cluster])|round(3)}}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        Total Information Lost: {{total_loss}}
+        <form action="{{url_for('FrontEndWeb.SOMResultC')}}" method="POST">
+            <div class="columns">
+                <div class="column is-half">
+                    <button class="button is-block is-info is-fullwidth" name="downloadAnalysis">Download Analysis</button>
+                </div>
+                <div class="column auto">
+                    <button class="button is-block is-info is-fullwidth" name="downloadClustered">Download Clustered Dataset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br>
+    {% if centroids: %}
+    <div class="tile box is-child">
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th>Centroid ID</th>
+                        {% for field in centroidFieldNames: %}
+                        <th>{{field}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cluster, values in centroids.items() %}
+                    <tr>
+                        <td>
+                            {{cluster}}
+                        </td>
+                        {% set cont = 0 %}
+                        {% for value in values: %}
+                        <td>
+                            {% if cont < nCatFields %}
+                                {{value}}
+                            {% else %}
+                                {{value|round(4)}}
+                            {% endif %}
+                            {% set cont = cont + 1 %}
+                        </td>
+                        {% endfor %}
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    <br>
+    <h1 class="title">
+        Graphs
+    </h1>
+    {% for i in range(0, nimages): %}
+    <img src="{{url_for('FrontEndWeb.image', filename=imageNames[i])}}" alt="Not found {{imageNames[i]}}">
+    {% endfor %}
+    {% if corrRes != 'None': %}
+    <h2 class="subtitle">
+        Correlation with Y-Class: {{corrRes}}
+    </h2>
+    {% endif %}
+</div>
+{% endblock %}

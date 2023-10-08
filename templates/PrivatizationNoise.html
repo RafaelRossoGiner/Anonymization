@@ -1,0 +1,62 @@
+{% extends "Privatization.html" %}
+
+{% block description %}
+Perform a clustering operation to identify how the dataset can be separated and which entries are at risk of being identified.
+{% endblock %}
+
+{% block parameters %}
+<input type="hidden" name="selectedNoise" value="{{selectedNoise}}">
+
+<table class="table is-fullwidth">
+    <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><label for="affectedRate">Affected Rows (0 to 100%)</label></td>
+        <td><input type="number" id="affectedRate" name="affectedRate" min=0 max=100 step=1 value=100></td>
+        <td>The percentage of the dataset affected by this operation.</td>
+    </tr>
+    {% if selectedNoise == "Uniform" %}
+    <tr>
+        <td>Operation</td>
+        <td>
+            <button class="button is-block is-link is-fullwidth" name="swapNoise">Uniform Noise</button>
+        </td>
+        <td>
+            Allows swapping data values between different entries. The operation will break correlations between the
+            swapped fields and the stationary fields, but it will preserve some statistical properties of the datasets.
+        </td>
+    </tr>
+    <tr>
+        <td><label for="minNoiseRate">Minimum noise (0 to 100%)</label></td>
+        <td><input type="number" id="minNoiseRate" name="minNoiseRate" min=0 max=100 step=1 value=0></td>
+        <td>The minimum percentage of the generated noise. The percentage is applied over the numeric range of each field individually</td>
+    </tr>
+    <tr>
+        <td><label for="maxNoiseRate">Maximum noise (0 to 100%)</label></td>
+        <td><input type="number" id="maxNoiseRate" name="maxNoiseRate" min=0 max=100 step=1 value=5></td>
+        <td>The maximum percentage of the generated noise. The percentage is applied over the numeric range of each field individually</td>
+    </tr>
+    {% elif selectedNoise == "Kim" %}
+    <tr>
+        <td>Operation</td>
+        <td>
+            <button class="button is-block is-link is-fullwidth" name="swapNoise">Kim Method</button>
+        </td>
+        <td>
+            Allows swapping data values between different entries. The operation will break correlations between the
+            swapped fields and the stationary fields, but it will preserve some statistical properties of the datasets.
+        </td>
+    </tr>
+    <tr>
+        <td><label for="noiseMagnitude">Noise Magnitude (0 to 100%)</label></td>
+        <td><input type="number" id="noiseMagnitude" name="noiseMagnitude" min=0 max=100 step=1 value=10></td>
+        <td>Variance modifier of the generated normal noise. It is proportional to the maximum range of each field in the dataset.</td>
+    </tr>
+    {% endif %}
+</table>
+
+<button class="button is-block is-info is-large is-fullwidth" name="Operate">Add Noise</button>
+{% endblock %}

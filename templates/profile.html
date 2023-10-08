@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Welcome, {{ user.name }}!
+</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class="notification is-{{category}}">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<form action="{{url_for('Auth.modify_account')}}" method="POST">
+    <div class="column is-10 is-offset-1 is-parent has-text-left box">
+        <article class="tile is-child">
+            <h2 class="subtittle">
+                Edit your profile
+            </h2>
+        </article>
+        <br>
+        <article class="tile is-child">
+            <h3 class="subtittle">
+                Name ({{user.name}})
+            </h3>
+            <input class="input is-small" type="text" name="newName" placeholder="{{user.name}}" autofocus="">
+            <button class="button is-block is-info is-small" name="updateName">Update Name</button>
+        </article>
+        <article class="tile is-child">
+            <h3 class="subtittle">
+                Email ({{user.email}})
+            </h3>
+            <input class="input is-small" type="email" name="newEmail" placeholder="{{user.email}}" autofocus="">
+            <button class="button is-block is-info is-small" name="updateEmail">Update Email</button>
+        </article>
+        <article class="tile is-child">
+            <h3 class="subtittle">
+                Password
+            </h3>
+            <input class="input is-small" type="password" name="newPassword" placeholder="New Password">
+            <input class="input is-small" type="password" name="confirmPassword" placeholder="Confirm Password">
+            <button class="button is-block is-info is-small" name="updatePassword">Update Password</button>
+        </article>
+        <br>
+        <article class="tile is-child">
+            <input type="checkbox" name="ConfirmDelete" id="ConfirmDelete">
+            <label for="ConfirmDelete">I confirm that I want to delete my account</label>
+            <button class="button is-block is-danger is-small" name="deleteAccount">Delete Account</button>
+        </article>
+    </div>
+</form>
+
+<div class="column is-parent has-text-centered box">
+    <h2 class="subtittle">
+      Your uploaded datasets
+    </h2>
+    {% if userDatasets %}
+    <div class="table-container">
+        <table class="table is-fullwidth is-scrollable">
+            <thead>
+                <tr>
+                    <th> Dataset </th>
+                    <th> Dimensions </th>
+                    <th> Entries </th>
+                    <th> Visibility </th>
+                    <th> Taxonomy Trees </th>
+                    <th> Delete </th>
+                    <th> Download </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dataset in userDatasets: %}
+                <form action="{{request.url}}" method="POST">
+                    <input type="hidden" name="dataset" value={{dataset.id}}>
+                    <tr>
+                        <td> {{dataset.datasetName}} </td>
+                        <td> {{dataset.dimensions}} </td>
+                        <td> {{dataset.entries}} </td>
+                        <td>
+                        {% if dataset.visibility %}
+                            <button class="button is-block is-success is-fullwidth" name="visibility">Public</button>
+                        {% else %}
+                            <button class="button is-block is-warning is-fullwidth" name="visibility">Private</button>
+                        {% endif %}
+                        </td>
+                        <td>
+                            <button class="button is-block is-success is-fullwidth" name="taxonomyTrees">Manage Trees</button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-danger is-fullwidth" name="delete">Delete</button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-info is-fullwidth" name="download">Download</button>
+                        </td>
+                    </tr>
+                </form>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <h2 class="subtitle">
+        You have not uploaded any datasets yet
+    </h2>
+    {% endif %}
+    <div class="has-text-center">
+        <form method="GET" action="{{ url_for('FrontEndWeb.uploadDatasets')}}">
+            <button class="button is-fullwidth is-block is-success is-center">Upload Datasets</button>
+        </form>
+    </div>
+    {% if externalDatasets %}
+    <h2 class="subtitle">
+        Your external datasets
+    </h2>
+    <p>
+        These are datasets uploaded by other users that have been shared with you!
+    </p>
+    <div class="table-container">
+        <table class="table is-fullwidth is-scrollable">
+            <thead>
+                <tr>
+                    <th> Dataset </th>
+                    <th> Dimensions </th>
+                    <th> Entries </th>
+                    <th> Owner </th>
+                    <th> Download </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dataset in externalDatasets: %}
+                <tr>
+                    <td> {{dataset.datasetName}} </td>
+                    <td> {{dataset.dimensions}} </td>
+                    <td> {{dataset.entries}} </td>
+                    <td>
+                        {{dataset.user.name}}
+                    </td>
+                    <td>
+                        <form action="{{request.url}}" method="POST">
+                            <input type="hidden" name="dataset" value={{dataset.id}}>
+                            <button class="button is-block is-info is-fullwidth" name="download">Download</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <h2 class="subtittle">
+        There are no datasets shared with you
+    </h2>
+    {% endif %}
+</div>
+
+{% endblock %}

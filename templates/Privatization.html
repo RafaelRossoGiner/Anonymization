@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class="notification is-{{category}}">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<h1 class="title">
+    Dataset {{datasetName}}
+</h1>
+<form action="{{url_for('FrontEndWeb.datasetPrivatization')}}" method="POST">
+    <input type="hidden" name="selectedOperation" value="{{selectedOperation}}">
+    <input type="hidden" name="datasetName" value="{{datasetName}}"/>
+    <div class="table-container">
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                {% for fieldName in fileData['fields']: %}
+                    <th>{{fieldName}}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(0, fileData['nPreviewEntries']): %}
+                    <tr>
+                    {% for fieldVal in fileData['entries'][i]: %}
+                        {% if fieldVal is number %}
+                            <td>{{ fieldVal|round(3) }}</td>
+                        {% else %}
+                            <td>{{fieldVal}}</td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <table class="table is-fullwidth">
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Operation</td>
+            {% if selectedOperation == "Swap" %}
+            <td>
+                <button class="button is-block is-link" name="swapOperation">Swap data</button>
+            </td>
+            <td>
+                Allows swapping data values between different entries. The operation will break correlations between the
+                swapped fields and the stationary fields, but it will preserve some statistical properties of the datasets.
+            </td>
+            {% elif selectedOperation == "Noise" %}
+            <td>
+                <button class="button is-block is-info" name="swapOperation">Add noise to data</button>
+            </td>
+            <td>
+                Adds noise to the data.
+            </td>
+            {% elif selectedOperation == "Strip" %}
+            <td>
+                <button class="button is-block is-info" name="swapOperation">Strip data</button>
+            </td>
+            <td>
+                Remove data from the dataset.
+            </td>
+            {% elif selectedOperation == "Generalize" %}
+            <td>
+                <button class="button is-block is-info" name="swapOperation">Generalize data</button>
+            </td>
+            <td>
+                Automatically generalize data to avoid ensure the privacy of the dataset.
+            </td>
+            {% endif %}
+        </tr>
+    </table>
+
+    {% block parameters %}
+    {% endblock %}
+</form>
+{% endblock %}

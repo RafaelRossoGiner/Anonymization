@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <article class="tile is-child box p-6">
+        <label><b>Dataset comparison</b></label>
+    </article>
+    <div class="columns p-6">
+        {% for fileData in files %}
+        <div class="column is-half is-parent is-vertical p-6">
+            <article class="tile is-child box p-6">
+                <h3>Dataset: {{fileData['name']}}</h3>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-striped">
+                        <thead>
+                        <th>Index</th>
+                        {% for fieldName in fileData['fields'] %}
+                            <th>{{fieldName}}</th>
+                        {% endfor %}
+                        </thead>
+                        {% for i in range(0, fileData['nPreviewEntries']) %}
+                        <tr>
+                            <td>{{i}}</td>
+                            {% for fieldName in fileData['entries'][i] %}
+                                <td>{{fieldName}}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <p>Total Entries: {{fileData['nentries']}}</p>
+                <h3>Statistics</h3>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-striped">
+                        <thead>
+                        <th>Operation</th>
+                        {% for fieldName in fileData['fields'] %}
+                            <th>{{fieldName}}</th>
+                        {% endfor %}
+                        </thead>
+                        <tr>
+                            <td>Mean / Most frequent</td>
+                            {% for i in range(0, fileData['nfields']) %}
+                                <td>{{fileData['MEAN'][i]}}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>Variance</td>
+                            {% set count = [0] %}
+                            {% for i in range(0, fileData['nfields']) %}
+                                {% if fileData['NumericalFieldMask'][i] %}
+                                   <td>
+                                       {{fileData['VARIANCE'][count[0]]}}
+                                       {% if count.append(count.pop() + 1) %}{% endif %}
+                                   </td>
+                                {% else  %}
+                                    <td>N/A</td>
+                                {% endif  %}
+                            {% endfor %}
+                        </tr>
+                    </table>
+                </div>
+                <p>For numeric values we calculate the mean, and for categorical fields we calculate the most common value and the percentage it represents</p>
+            </article>
+            <article class="tile is-child box m-6">
+                <h3>PCA Summary</h3>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-striped">
+                        <thead>
+                            <th>Component</th>
+                            <th>Significance</th>
+                            <th>Most important feature (Significance)</th>
+                        </thead>
+                        <tbody>
+                            {% set count = [0] %}
+                            {% for comp, values in fileData['PCA']['mostImportant'].items(): %}
+                            <tr>
+                                <td>{{comp}}</td>
+                                <td>{{fileData['PCA']['expVarRat'][count[0]]}}%</td>
+                                <td>{{values[0]}} ({{values[1]}})%</td>
+                                {% if count.append(count.pop() + 1) %}{% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p>Summary of Principal Components Analysis (PCA) over the dataset</p>
+            </article>
+                <article class="tile is-child box m-6">
+                <h3><h3>PCA Component Significance</h3></h3>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-striped">
+                        <thead>
+                            <th>Component</th>
+                            {% for name in fileData['PCA']['featureNames']: %}
+                                <th>{{name}}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% set count = [0] %}
+                            {% for values in fileData['PCA']['components']: %}
+                            <tr>
+                                <td>PC{{count[0]}}</td>
+                                {% for val in values: %}
+                                    <td>{{val}}%</td>
+                                {% endfor %}
+                            </tr>
+                            {% if count.append(count.pop() + 1) %}{% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p>PCA components variance ratio.</p>
+            </article>
+        </div>
+        {% endfor %}
+    </div>
+<div class="box">
+    <h2 class="subtitle has-text-black">Error Comparison</h2>
+    <h2>MSE: {{results['MSE']}}</h2>
+    <h2>MAE: {{results['MAE']}}</h2>
+    <h2>MV: {{results['MV']}}</h2>
+</div>
+{% endblock %}

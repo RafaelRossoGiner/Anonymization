@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+	<h1 class="title is-1">
+		Upload a new file
+	</h1>
+	<h1 class="subtitle">
+		Datasets must have a header row containing the name of each field.
+	</h1>
+	<div class="box">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+			<div class="notification is-{{category}}">
+				{{ message }}
+			</div>
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
+		<form action="/uploadDatasets" method="POST" enctype="multipart/form-data">
+			<div id="file-with-js" class="file is-warning is-boxed is-centered">
+				<label class="file-label">
+					<input class="file-input" type="file" name="file">
+					<span class="file-cta">
+					  <span class="file-label">
+						Select dataset...
+					  </span>
+					</span>
+				</label>
+			</div>
+			<div class="field">
+                <label class="checkbox">
+                    <input type="checkbox" name="public">
+                    Public
+                </label>
+            </div>
+			<button class="button is-block is-info is-fullwidth">Upload File</button>
+		</form>
+	</div>
+</div>
+
+<!-- Javascript to retrieve the name of the selected file. -->
+<script>
+	var input = document.querySelector(
+	  "#file-with-js>.file-label>.file-input"
+	);
+
+	input.onchange = function () {
+		if(input.files.length > 0){
+			var fileNameContainer =
+				document.querySelector(
+				  "#file-with-js>.file-label>.file-cta>.file-label"
+				);
+			fileNameContainer.textContent =
+			  input.files[0].name;
+		}
+	}
+</script>
+
+{% endblock %}

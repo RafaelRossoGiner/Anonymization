@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="tile is-ancestor is-vertical m-6">
+	<article class="tile is-child">
+		<h1 class="tittle">{{dataset.datasetName}}</h1>
+	</article>
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+		{% for category, message in messages %}
+		<article class="tile is-child is-{{category}} notification">
+			{{ message }}
+		</article>
+		{% endfor %}
+	{% endif %}
+	{% endwith %}
+	<article class="tile is-child box">
+		<h1 class="tittle" id="progressDesc"></h1>
+		<h1 class="tittle" id="progressMade"></h1>
+		<h1 class="tittle" id="progressRate"></h1>
+	</article>
+	<article class="tile is-child box">
+		<h1 class="tittle" id="progressPerc"></h1>
+		<progress class="progress is-link" id="progressBar" value="0" max="100">0%</progress>
+		<h1 class="tittle" id="progressTime"></h1>
+	</article>
+	<article class="tile is-child">
+		<form action="{{url_for('FrontEndWeb.processing')}}" method="POST">
+			<input type="hidden" name="SOMNetID" value={{SOMNetID}}>
+			<button class="button is-block is-success is-fullwidth" name="cancel">Cancel</button>
+		</form>
+	</article>
+</div>
+
+<script>
+var timeout;
+
+async function getStatus() {
+
+  let status;
+
+  try
+  {
+    const res = await fetch("/status/{{SOMNetID}}");
+    status = await res.json();
+    if (status.status == -1)
+    {
+		location.replace("/error");
+    }
+    else if (status.status == 2)
+    {
+    	location.replace("{{successRedirect}}");
+    }
+    else
+    {
+    	if (status.status == 0)
+    	{
+			document.getElementById("progressPerc").innerHTML = "Wait a Moment"
+		}
+		else if (status.rate !== null)
+		{
+			var rateRound = status.rate < 1 ? 2 : 0;
+			var progress = (status.iteration / status.totalIterations * 100).toFixed(2);
+			document.getElementById("progressDesc").innerHTML = status.desc
+			document.getElementById("progressPerc").innerHTML = progress + "&percnt;"
+			document.getElementById("progressMade").innerHTML = status.iteration + " / " + status.totalIterations + " " + status.unit
+			document.getElementById("progressRate").innerHTML = status.rate.toFixed(rateRound) + " " + status.unit +"/s"
+			document.getElementById("progressBar").value = progress;
+			document.getElementById("progressTime").innerHTML = "Elapsed time: " + status.elapsed + " | Remaining time: " + status.remaining
+		}
+		timeout = setTimeout(getStatus, {{ProgressUpdate}});
+	}
+  }
+  catch (e)
+  {
+    console.error("Error: ", e);
+  }
+}
+
+getStatus();
+</script>
+
+{% endblock %}

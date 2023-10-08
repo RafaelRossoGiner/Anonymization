@@ -1,0 +1,126 @@
+{% extends "SOMAnalysis.html" %}
+
+{% block description %}
+Perform a clustering operation to identify how the dataset can be separated and which entries are at risk of being identified.
+{% endblock %}
+
+{% block parameters %}
+    <table class="table is-fullwidth">
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+
+        <tr>
+            <td>Y Class</td>
+            <td>
+                <div class="select">
+                    <select id="YclassName" name="YclassName">
+                        <option value="None">None</option>
+                        {% for i in range(fileData['nfields']): %}
+                        {% if (dataset.categoricalFieldMode != 1) or (dataset.categoricalFieldMode == 1 and NumericalFieldsMask[i] == '1'): %}
+                            <option value="{{fileData['fields'][i]}}">{{fileData['fields'][i]}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </td>
+            <td>This special field can be used to obtain additional error data, by comparing the resulting clustering agains the values in this field</td>
+        </tr>
+
+        <tr>
+        <td><label for="kValue">K:</label></td>
+        <td><input type="number" id="kValue" name="kValue" min=1 step=1 value=100></td>
+        <td>Estimation of the desired elements per cluster, if "Ensure K" is selected, the algorithm will adjust the SOM result to ensure the K-anonimity</td>
+        </tr>
+
+        <tr>
+        <td><label for="kValue">A:</label></td>
+        <td><input type="number" id="aValue" name="aValue" min=1 value=1.2 step="any"></td>
+        <td>A component of the learning rate (LR) function, which decreases along the iterations (I), following the function:<br>LR = A<sup>-BI/entries</sup></td>
+        </tr>
+
+        <tr>
+        <td><label for="kValue">B:</label></td>
+        <td><input type="number" id="bValue" name="bValue" min=0 value=0.3 step="any"></td>
+        <td>B component of the learning rate (LR) function, which decreases along the iterations (I), following the function:<br>LR = A<sup>-BI/entries</sup></td>
+        </tr>
+
+        <tr>
+        <td><label for="MaxIt">Epochs</label></td>
+        <td><input type="number" id="MaxIt" name="MaxIt" min=0 step=1 value=0></td>
+        <td>Number of iterations over the dataset, leave at 0 to let the algorithm decide.</td>
+        </tr>
+
+        <tr>
+        <td><label for="sigma">Sigma</label></td>
+        <td><input type="number" id="sigma" name="sigma" min=0 step=1 value=1></td>
+        <td>Neighbourhood size.</td>
+        </tr>
+
+        {% if dataset.categoricalFieldMode != 2 %}
+        <tr>
+        <td><label for="ensureK">Ensure K-anonimity</label></td>
+        <td><input type="checkbox" id="ensureK" name="ensureK"></td>
+        <td>If checked, an additional adjustment stage will be performed to ensure that all clusters have at least K elements</td>
+        </tr>
+        {% endif %}
+
+        <tr>
+            <td><label for="saveInterval">Saving interval (0% to 100%)</label></td>
+            <td><input type="number" id="saveInterval" name="saveInterval" min=0 max=100 step=0 value=0></td>
+            <td>
+                The interval between saving points. The execution can be continued in the future from any of
+                these saving points. Leave at 0% to disable save points completely.
+            </td>
+        </tr>
+    </table>
+
+    <input type="hidden" name="datasetName" value="{{dataset.datasetName}}"/>
+    <input class="button is-block is-info is-large is-fullwidth" type="submit" name="Clustering" value="Train SOM"/>
+
+    {% if trainingPoints %}
+    <br>
+    <h2 class="subtittle">
+      Your previous training points for this dataset
+    </h2>
+    <div class="table-container">
+        <table class="table is-fullwidth is-scrollable">
+            <thead>
+                <tr>
+                    <th> Date </th>
+                    <th> Y class </th>
+                    <th> K </th>
+                    <th> Neighbourhood </th>
+                    <th> Completed Iterations </th>
+                    <th> Iterations </th>
+                    <th> Ensure K </th>
+                    <th> Selection </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trainingPoint in trainingPoints: %}
+                    <tr>
+                        <td> {{trainingPoint.saveDate}} </td>
+                        <td> {{trainingPoint.yClass}} </td>
+                        <td> {{trainingPoint.k_value}} </td>
+                        <td> {{trainingPoint.sigma}} </td>
+                        <td> {{trainingPoint.currIterations}} </td>
+                        <td> {{trainingPoint.epochs * dataset.entries}} </td>
+                        <td> {{"Yes" if trainingPoint.ensureK else "False"}} </td>
+                        <td>
+                            <input type="radio" name="trainingPointID" value="{{trainingPoint.id}}"/>
+                        <td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input class="button is-block is-info is-large is-fullwidth" type="submit" name="ClusteringLoad" value="Load selected training point"/>
+    </div>
+    {% else %}
+    <h2 class="subtittle">
+      There are no training points available
+    </h2>
+    {% endif %}
+{% endblock %}

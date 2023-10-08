@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="title">
+        Graphs
+    </h1>
+    {% for i in range(0, nimages): %}
+    <img src="{{url_for('FrontEndWeb.image', filename=imageNames[i])}}" alt="Not found {{imageNames[i]}}">
+    {% endfor %}
+{% endblock %}

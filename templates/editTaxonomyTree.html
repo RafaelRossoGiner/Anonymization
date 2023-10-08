@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+enable-line-break {
+    white-space: pre-wrap;
+}
+</style>
+<div class="tile is-ancestor is-vertical m-6">
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	{% for category, message in messages %}
+	<article class="tile is-child is-{{category}} notification">
+		{{ message }}
+	</article>
+	{% endfor %}
+	{% endif %}
+	{% endwith %}
+	<article class="tile is-child box">
+		<form action="{{url_for('FrontEndWeb.editTaxonomyTree')}}" method="POST">
+			<input type="hidden" name="taxTreeName" value="{{taxTreeName}}"/>
+			<div class="field">
+				<div class="control">
+					<input class="input is-small" type="text" name="treeText" value="{{treeText}}" autofocus="">
+				</div>
+			</div>
+			<button class="button is-block is-info is-fullwidth" name="saveTreeText">Save changes</button>
+		</form>
+		<form action="{{url_for('FrontEndWeb.taxonomyTrees')}}" method="POST">
+			<button class="button is-block is-link is-fullwidth" name="GoBack">Go Back</button>
+		</form>
+	</article>
+</div>
+
+{% endblock %}

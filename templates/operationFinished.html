@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="tile is-ancestor is-vertical m-6">
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	{% for category, message in messages %}
+	<article class="tile is-child is-{{category}} notification">
+		{{ message }}
+	</article>
+	{% endfor %}
+	{% endif %}
+	{% endwith %}
+	<form action="{{url_for('FrontEndWeb.operationFinished')}}" method="POST">
+		<div class="tile is-parent m-6">
+			<input type="hidden" name="selectedOperation" value="{{selectedOperation}}"/>
+			{% if canReplace %}
+				<article class="tile is-child box m-6">
+					<button class="button is-block is-info is-fullwidth" name="replaceDataset">Replace Original Dataset</button>
+				</article>
+			{% endif %}
+			<article class="tile is-child box">
+				<button class="button is-block is-info is-fullwidth" name="saveDataset">Save as a new Dataset</button>
+				<div class="field">
+					<div class="control">
+						<input class="input is-small" type="text" name="newDatasetName" placeholder="File name" autofocus="">
+					</div>
+				</div>
+			</article>
+			<article class="tile is-child box">
+					<button class="button is-block is-info is-fullwidth" formaction="{{url_for('FrontEndWeb.download')}}">Download File</button>
+			</article>
+		</div>
+	</form>
+</div>
+
+{% endblock %}

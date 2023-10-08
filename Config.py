@@ -1,0 +1,34 @@
+FLASK_WORKERS = 5
+
+WEB_MAX_PREVIEW_ENTRIES = 3
+WEB_MAX_TRAININGPOINTS_PER_DATASET = 5
+PROGRESS_BAR_UPDATE_SPEED = 2000  # in ms
+
+DATASET_FILENAME_PREFIX = 'DS_'
+TRAININGPOINT_FILENAME_PREFIX = 'TP_'
+TAXONOMY_TREE_FILENAME_PREFIX = 'TT_'
+TAXONOMY_TREE_DIRECTORY_PREFIX = 'TTD_'
+
+DATASET_CLUSTERED_SUFFIX = '_Clustered'
+
+DATASETS_SAVE_PATH = '../DB/Datasets/'
+DATASETS_TEMPORARY_PATH = '../DB/DatasetsTemp/'
+DATASETS_TRAINED_POINTS_PATH = '../DB/TrainedPoints/'
+DATASETS_RESULTS_PATH = '../DB/ResultingDatasets/'
+TAXONOMY_TREE_PATH = '../DB/TaxonomyTree/'
+
+FULL_IMAGES_SAVE_PATH = 'static'  # Remove, should not be changed
+
+UPLOAD_FOLDER_PATH = '../UploadedDatasets/'  # Change to temporary
+
+OUTPUT_IMAGE_FORMAT = "png"
+ALLOWED_DATASET_EXTENSIONS = ['txt', 'csv', 'data']
+TAXONOMY_TREE_EXTENSION = 'txt'
+
+DataBaseURI = "mariadb+mariadbconnector://anonymizationUser:anonymizationPswd@localhost:3306/anonymization"
+
+SecretKey = "DevelopmentKey_MUST_BE_CHANGED_FOR_PRODUCTION"
+LOGGING_ENABLED = True
+LOGGING_LEVEL = 3
+LOGGING_TRACEBACK = False
+LOGGING_FILENAME = 'ErrorLog.txt'

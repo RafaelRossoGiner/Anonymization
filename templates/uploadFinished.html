@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+	<div class="box">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<h1 class="title" is-success>
+				Warning!
+			</h1>
+			{% for category, message in messages %}
+			<div class="notification is-{{category}}">
+				{{ message }}
+			</div>
+			{% endfor %}
+			<form action="{{request.url}}">
+				<button class="button is-block is-info is-fullwidth">Fix automatically</button>
+			</form>
+		{% else %}
+			<h1 class="title">
+				Upload Succesful!
+			</h1>
+		{% endif %}
+			<form action="url_for('FrontEndWeb.uploadDatasets')">
+				<button class="button is-block is-info is-fullwidth">Upload another file</button>
+			</form>
+			<form action="{{url_for('FrontEndWeb.home')}}">
+				<button class="button is-block is-info is-fullwidth">Go Back</button>
+			</form>
+		{% endwith %}
+    </div>
+</div>
+
+{% endblock %}

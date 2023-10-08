@@ -1,0 +1,44 @@
+{% extends "Privatization.html" %}
+
+{% block description %}
+Perform a clustering operation to identify how the dataset can be separated and which entries are at risk of being identified.
+{% endblock %}
+
+{% block parameters %}
+<table class="table is-fullwidth">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><label>Selected Attributes</label></td>
+            <td>
+                <div class="is-parent is-vertical">
+                    {% for selField in selFields: %}
+                    <div class="select tile is-child is-fullwidth">
+                        <select id="SelFields" name="SelFields">
+                            {% for fieldName in fileData['fields']: %}
+                            <option value="{{fieldName}}" {{'selected' if fieldName == selField else ''}}>
+                                {{fieldName}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                        <button class="button is-block is-success is-fullwidth" name="AddField">Add Field</button>
+                    {% if selFields: %}
+                        <button class="button is-block is-danger is-fullwidth" name="RemoveField">Remove Field</button>
+                    {% endif %}
+                </div>
+            </td>
+            <td>Fields that will be affected by the data swap operation</td>
+        </tr>
+    </tbody>
+</table>
+
+<button class="button is-block is-info is-large is-fullwidth" name="Operate">Strip</button>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "SOMAnalysis.html" %}
+
+{% block description %}
+{% endblock %}
+
+{% block parameters %}
+    <table class="table is-fullwidth">
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+
+        <tr>
+            <td>Cause fields</td>
+            <td>
+                <div class="is-parent is-vertical">
+                    {% for CauseField in CauseFields: %}
+                    <div class="select tile is-child is-fullwidth">
+                        <select id="CauseFields" name="CauseFields">
+                            {% for i in range(fileData['nfields']): %}
+                                {% if (dataset.categoricalFieldMode != 1) or (dataset.categoricalFieldMode == 1 and NumericalFieldsMask[i]=='1'): %}
+                                <option value="{{fileData['fields'][i]}}" {{'selected' if fileData['fields'][i] == CauseField else ''}}>
+                                    {{fileData['fields'][i]}}
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                        <button class="button is-block is-success is-fullwidth" name="AddField">Add Field</button>
+                    {% if CauseFields: %}
+                        <button class="button is-block is-danger is-fullwidth" name="RemoveField">Remove Field</button>
+                    {% endif %}
+                </div>
+            </td>
+            <td>List of fields that will be used to train the SOM, which will act as the cause of the hypothesis effect</td>
+        </tr>
+
+        {% if EffectF is none: %}
+            <tr>
+                <td>Effect field</td>
+                <td>
+                    <div class="select">
+                        <select id="YclassName" name="YclassName">
+                            {% for i in range(fileData['nfields']): %}
+                            {% if (dataset.categoricalFieldMode != 1) or (dataset.categoricalFieldMode == 1 and NumericalFieldsMask[i]): %}
+                                <option value="{{fileData['fields'][i]}}">{{fileData['fields'][i]}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </td>
+                <td>This fields represents the cause of the hypothesis and will determine the data on each sample</td>
+            </tr>
+            <tr>
+            <td>Conditions</td>
+            <td><input class="button is-block is-info is-fullwidth" type="submit" name="LoadEffectField" value="Start adding conditions"/></td>
+            <td>Click this button once you have selected the effect field.</td>
+            </tr>
+        {% else %}
+            <tr>
+            <td>Effect Field: {{EffectF}}</td>
+            <td><input class="button is-block is-info is-fullwidth" type="submit" name="ReloadEffectField" value="Select new effect field"/></td>
+            <td>Click this button whenever you need to select a different effect field.</td>
+            </tr>
+            <input type="hidden" name="EffectF" value={{EffectF}}>
+            {% if NumericalFieldsMask[EFind] == '1': %}
+                <tr>
+                    <td>Sample A first condition</td>
+                    <td>
+                        <div class="tile is-parent">
+                            <div class="tile select is-child">
+                                <select name="CondOp">
+                                    {% for operator in operatorList: %}
+                                    <option value="{{operator}}">{{operator}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="tile is-child">
+                                <input type="number" name="CondNum" value=0 step=any>
+                            </div>
+                        </div>
+                        <label for="CondPerc0">Is the value a percentage?</label>
+                        <input type="checkbox" id="CondPerc0" value=0 name="CondPerc">
+                    </td>
+                    <td>
+                        Condition that the sample A must meet when evaluating the Effect field.
+                        <br>The ratio checkbox can be used to indicate whether the value comparison is literal or it
+                        should be scaled according to the range of the selected field.
+                        <br> If checked, a value of 0.5 will be translated to the median of the data, and a value of 1
+                        to the maximum. Checking this box will clip any values below 0 or above 1 to 0 and 1 respectively.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Sample A second condition</td>
+                    <td>
+                        <div class="tile is-parent">
+                            <div class="tile select is-child">
+                                <select name="CondOp">
+                                    <option value="None">None</option>
+                                    {% for operator in operatorList: %}
+                                    <option value="{{operator}}">{{operator}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="tile is-child">
+                                <input type="number" name="CondNum" value=0 step=any>
+                            </div>
+                        </div>
+                        <label for="CondPerc1">Is the value a percentage?</label>
+                        <input type="checkbox" id="CondPerc1" value=1 name="CondPerc">
+                    </td>
+                    <td>
+                        Condition that the sample A must meet when evaluating the Effect field.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Sample B first condition</td>
+                    <td>
+                        <div class="tile is-parent">
+                            <div class="tile select is-child">
+                                <select name="CondOp">
+                                    {% for operator in operatorList: %}
+                                    <option value="{{operator}}">{{operator}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="tile is-child">
+                                <input type="number" name="CondNum" value=0 step=any>
+                            </div>
+                        </div>
+                        <label for="CondPerc2">Is the value a percentage?</label>
+                        <input type="checkbox" id="CondPerc2" value=2 name="CondPerc">
+                    </td>
+                    <td>
+                        Condition that the sample B must meet when evaluating the Effect field.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Sample B second condition</td>
+                    <td>
+                        <div class="tile is-parent">
+                            <div class="tile select is-child">
+                                <select name="CondOp">
+                                    <option value="None">None</option>
+                                    {% for operator in operatorList: %}
+                                    <option value="{{operator}}">{{operator}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="tile is-child">
+                                <input type="number" name="CondNum" value=0 step=any>
+                            </div>
+                        </div>
+                        <label for="CondPerc3">Is the value a percentage?</label>
+                        <input type="checkbox" id="CondPerc3" value=3 name="CondPerc">
+                    </td>
+                    <td>
+                        Condition that the sample B must meet when evaluating the Effect field.
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>Sample A first condition</td>
+                    <td>
+                        <div class="tile is-ancestor is-vertical">
+                            {% for label in EffectLabels: %}
+                            <div class="tile is-parent">
+                                <div class="tile select is-child">
+                                    <select id="CatLabel_{{label}}" name="CatLabel">
+                                        <option value=0>None</option>
+                                        <option value=1>A</option>
+                                        <option value=2>B</option>
+                                        <option value=3>Both</option>
+                                    </select>
+                                </div>
+                                <div class="tile is-child">
+                                    <label for="CatLabel_{{label}}">{{label}}</label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        Define which values must be present in each of the two samples.
+                    </td>
+                </tr>
+            {% endif %}
+            <tr>
+            <td><label for="EqualSamples">Adjust sample size</label></td>
+            <td><input type="checkbox" id="EqualSamples" name="EqualSamples"></td>
+            <td>
+                If checked, both samples will have the same size. The resulting larger sample will be reduced to match the
+                size of the smaller one by discarding random data points.
+            </td>
+            </tr>
+        {% endif %}
+        <tr>
+        <td><label for="kValue">K:</label></td>
+        <td><input type="number" id="kValue" name="kValue" min=1 step=1 value=100></td>
+        <td>Estimation of the desired elements per cluster, if "Ensure K" is selected, the algorithm will adjust the SOM result to ensure the K-anonimity</td>
+        </tr>
+
+        <tr>
+        <td><label for="MaxIt">Epochs</label></td>
+        <td><input type="number" id="MaxIt" name="MaxIt" min=0 step=1 value=0></td>
+        <td>Number of iterations over the dataset, leave at 0 to let the algorithm decide.</td>
+        </tr>
+
+        <tr>
+        <td><label for="sigma">Sigma</label></td>
+        <td><input type="number" id="sigma" name="sigma" min=0 step=1 value=1></td>
+        <td>Neighbourhood size.</td>
+        </tr>
+    </table>
+    <input class="button is-block is-info is-large is-fullwidth" type="submit" name="Hypothesis Study" value="Hypothesis Study"/>
+{% endblock %}

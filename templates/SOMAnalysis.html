@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="notification is-{{category}}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h1>Dataset {{dataset.datasetName}}!</h1>
+    {% block description %}
+    {% endblock %}
+    <div class="table-container">
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                {% for i in range(fileData['nfields']): %}
+                    <th>
+                        ({{'Numerical' if NumericalFieldsMask[i] == '1' else 'Categorical'}})<br>
+                        {{fileData['fields'][i]}}
+                    </th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(0, fileData['nPreviewEntries']): %}
+                    <tr>
+                    {% for fieldVal in fileData['entries'][i]: %}
+                        {% if fieldVal is number %}
+                            <td>{{ fieldVal|round(3) }}</td>
+                        {% else %}
+                            <td>{{fieldVal}}</td>
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form action="{{url_for('FrontEndWeb.SOMAnalysis')}}" method="POST">
+        <input type="hidden" name="datasetName" value="{{dataset.datasetName}}"/>
+        <input type="hidden" name="selectedOperation" value="{{selectedOperation}}">
+        <input type="hidden" name="NumericalFieldsMask" value="{{NumericalFieldsMask}}">
+        <table class="table is-fullwidth">
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>Categorical Fields</td>
+                {% if dataset.categoricalFieldMode == 0 %}
+                <td>
+                    <button class="button is-block is-link is-fullwidth" name="categoricalFieldMode">Encoded</button>
+                </td>
+                <td>
+                    The system will automatically encode categorical fields by assigning each unique value a
+                    different numerical value, these values are equally distant and normalized.
+                </td>
+                {% elif dataset.categoricalFieldMode == 1 %}
+                <td>
+                    <button class="button is-block is-info is-fullwidth" name="categoricalFieldMode">Omitted</button>
+                </td>
+                <td>
+                    The SOM operation will completely ignore any categorical fields found and compute the result using
+                    only the numerical fields available.
+                </td>
+                {% else %}
+                <td>
+                    <button class="button is-block is-success is-fullwidth" name="categoricalFieldMode">Taxonomy Trees</button>
+                </td>
+                <td>
+                    The system will use the provided Taxonomy Trees to operate through the categorical fields of the
+                    dataset.<br>
+                </td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td>Selected Operation</td>
+                <td>
+                    <button class="button is-block is-info is-fullwidth" name="swapOperation" value="{{selectedOperation}}">{{selectedOperation}}</button>
+                </td>
+                {% if selectedOperation == "Hypothesis Study" %}
+                <td>
+                    Allows selecting a number of cause fields to contrast an hypothesis over an effect field. This can
+                    help to identificate relation between fields and hint at the dependencies between them.
+                </td>
+                {% elif selectedOperation == "Hyperparameter Optimization" %}
+                <td>
+                    Allows training the SOM with multiple parameter and compare results to optimize the parameter selection
+                    for a given dataset.
+                </td>
+                {% else %}
+                <td>
+                    Train the SOM network to clusterize the data and analyze the causes of the segregation obtained. Can
+                    be also used to cluster the dataset itself and ensure K-anonimity if needed.
+                </td>
+                {% endif %}
+            </tr>
+        </table>
+    <br>
+    {% block parameters %}
+    {% endblock %}
+    </form>
+{% endblock %}

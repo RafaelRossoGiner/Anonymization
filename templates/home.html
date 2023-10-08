@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Welcome, {{ current_user.name }}!
+</h1>
+
+<form method="GET" action="{{ url_for('FrontEndWeb.selectDatasets')}}">
+    <input type="hidden" name="action" value="SOMAnalysis">
+    <button class="button is-block is-info is-large is-fullwidth">SOM Analysis</button>
+</form>
+
+<form method="GET" action="{{ url_for('FrontEndWeb.selectDatasets')}}">
+    <input type="hidden" name="action" value="compareDatasets">
+    <button class="button is-block is-info is-large is-fullwidth">Dataset Comparison</button>
+</form>
+
+<form method="GET" action="{{ url_for('FrontEndWeb.selectDatasets')}}">
+    <input type="hidden" name="action" value="datasetPrivatization">
+    <button class="button is-block is-info is-large is-fullwidth">Dataset Anonymization</button>
+</form>
+
+{% endblock %}

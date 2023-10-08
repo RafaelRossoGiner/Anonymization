@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Something went wrong!
+</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+	{% for category, message in messages %}
+	<article class="tile is-child is-{{category}} notification">
+		{{ message }}
+	</article>
+	{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

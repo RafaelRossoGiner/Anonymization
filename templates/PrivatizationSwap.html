@@ -1,0 +1,52 @@
+{% extends "Privatization.html" %}
+
+{% block description %}
+Perform a clustering operation to identify how the dataset can be separated and which entries are at risk of being identified.
+{% endblock %}
+
+{% block parameters %}
+<table class="table is-fullwidth">
+    <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+        <th>Description</th>
+    </tr>
+
+    <tr>
+    <td><label for="SwapRate">Swap Rate (0 to 100%)</label></td>
+    <td><input type="number" id="SwapRate" name="SwapRate" min=0 max=100 step=1 value={{swapRate}}></td>
+    <td>Percentage of the dataset records that will be affected by the operation</td>
+    </tr>
+
+    <tr>
+    <td><label>Selected Attributes</label></td>
+    <td>
+        <div class="is-parent is-vertical">
+            {% for swapField in swapFields: %}
+            <div class="select tile is-child is-fullwidth">
+                <select id="SwapFields" name="SwapFields">
+                    {% for fieldName in fileData['fields']: %}
+                    <option value="{{fieldName}}" {{'selected' if fieldName == swapField else ''}}>
+                        {{fieldName}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+                <button class="button is-block is-success is-fullwidth" name="AddField">Add Field</button>
+            {% if swapFields: %}
+                <button class="button is-block is-danger is-fullwidth" name="RemoveField">Remove Field</button>
+            {% endif %}
+        </div>
+    </td>
+    <td>Fields that will be affected by the data swap operation</td>
+    </tr>
+
+    <tr>
+    <td><label for="GroupFields">Fields are grouped</label></td>
+    <td><input type="checkbox" id="GroupFields" name="GroupFields" {{'checked' if groupFields else ''}}></td>
+    <td>If selected, all selected fields will be swapped as a group instead of being swapped individually</td>
+    </tr>
+</table>
+<button class="button is-block is-info is-large is-fullwidth" name="Operate">Swap Data</button>
+{% endblock %}

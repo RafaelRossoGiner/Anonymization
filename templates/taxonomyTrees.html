@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Taxonomy Trees for {{dataset.datasetName}}
+</h1>
+
+<div class="box">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="notification is-{{category}}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% if taxonomyTreeNames %}
+    <h2 class="subtittle">
+      Uploaded taxonomy trees
+    </h2>
+    <div class="table-container">
+        <table class="table is-fullwidth is-scrollable">
+            <thead>
+                <tr>
+                    <th> Field Name </th>
+                    <th> Edit </th>
+                    <th> Delete </th>
+                    <th> Download </th>
+                    <th> Upload </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for treeName in taxonomyTreeNames: %}
+                {% if treeName not in missingTrees: %}
+                <tr>
+                    <td> {{treeName}}</td>
+                    <td>
+                        <form action="{{request.url}}" method="POST">
+                            <input type="hidden" name="treeName" value={{treeName}}>
+                            <button class="button is-block is-warning is-fullwidth" name="edit">Edit</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{request.url}}" method="POST">
+                            <input type="hidden" name="treeName" value={{treeName}}>
+                            <button class="button is-block is-danger is-fullwidth" name="delete">Delete</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{request.url}}" method="POST">
+                            <input type="hidden" name="treeName" value={{treeName}}>
+                            <button class="button is-block is-info is-fullwidth" name="download">Download</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/uploadTaxonomyTree" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="treeName" value={{treeName}}>
+                            <div class="file is-success">
+                              <label class="file-label">
+                                <input class="file-input" type="file" name="file" onchange="this.form.submit();">
+                                <span class="file-cta">
+                                  <span class="file-label">
+                                    Upload
+                                  </span>
+                                </span>
+                              </label>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <h2 class="subtittle">
+        There are no taxonomy trees for this dataset
+    </h2>
+    {% endif %}
+    {% if missingTrees %}
+    <h2 class="subtittle">
+      There are no trees uploaded for these fields
+    </h2>
+    <div class="table-container">
+        <table class="table is-fullwidth is-scrollable">
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for treeName in missingTrees: %}
+                <tr>
+                    <td class="has-text-centered"> {{treeName}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form action="{{request.url}}" method="POST">
+        <button class="button is-block is-success is-large is-fullwidth" name="generateTrees">Generate Missing Trees</button>
+    </form>
+    {% else %}
+    {% endif %}
+</div>
+
+{% endblock %}

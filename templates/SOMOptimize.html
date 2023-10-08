@@ -1,0 +1,96 @@
+{% extends "SOMAnalysis.html" %}
+
+{% block description %}
+
+{% endblock %}
+
+{% block parameters %}
+    <table class="table is-fullwidth">
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+
+        <tr>
+            <td>Y Class</td>
+            <td>
+                <div class="select">
+                    <select id="YclassName" name="YclassName">
+                        {% for i in range(fileData['nfields']): %}
+                        {% if (dataset.categoricalFieldMode != 1) or (dataset.categoricalFieldMode == 1 and NumericalFieldsMask[i]): %}
+                            <option value="{{fileData['fields'][i]}}">{{fileData['fields'][i]}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </td>
+            <td></td>
+        </tr>
+
+        <tr>
+        <td><label for="MaxIt">Epochs, leave at 0 to let the algorithm decide:</label></td>
+        <td><input type="number" id="MaxIt" name="MaxIt" min=0 step=1 value=0></td>
+        <td></td>
+        </tr>
+
+        <tr>
+        <td><label for="sigma">Sigma</label></td>
+        <td><input type="number" id="sigma" name="sigma" min=0 step=1 value=1></td>
+        <td>neighbourhood initial size</td>
+        </tr>
+
+        <tr>
+            <td><label for="kMin">K Minimum:</label></td>
+            <td><input type="number" id="kMin" name="kMin" min=1 step=1 value=100></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><label for="kMax">K Maximum:</label></td>
+            <td><input type="number" id="kMax" name="kMax" min=1 step=1 value=200></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><label for="kStep">K Step:</label></td>
+            <td><input type="number" id="kStep" name="kStep" min=1 step=1 value=10></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><label for="aMin">A Minimum:</label></td>
+            <td><input type="number" id="aMin" name="aMin" min=1 step=0.1 value=1></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><label for="aMax">A Maximum:</label></td>
+            <td><input type="number" id="aMax" name="aMax" min=1 step=0.1 value=3></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><label for="aStep">A Step:</label></td>
+            <td><input type="number" id="aStep" name="aStep" min=0 step=0.1 value=0.1></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><label for="bMin">B Minimum:</label></td>
+            <td><input type="number" id="bMin" name="bMin" min=0 step=0.05 value=0></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><label for="bMax">B Maximum:</label></td>
+            <td><input type="number" id="bMax" name="bMax" min=0 step=0.05 value=1></td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td><label for="bStep">B Step:</label></td>
+            <td><input type="number" id="bStep" name="bStep" min=0 step=0.05 value=0.05></td>
+            <td></td>
+        </tr>
+    </table>
+    <input class="button is-block is-info is-large is-fullwidth" type="submit" name="Hyperparameter Optimization" value="Hyperparameter Optimization"/>
+{% endblock %}

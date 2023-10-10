@@ -1,0 +1,57 @@
+version: '3.9'
+
+networks:
+  privatenet:
+    external: false
+    driver: bridge
+
+services:
+  mariadb:
+    image: mariadb:11.1.2-jammy
+    restart: always
+    platform: linux/amd64
+    networks:
+      - privatenet
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=anonymizationPswd
+      - MYSQL_USER=anonymizationUser
+      - MYSQL_DATABASE=anonymization
+    healthcheck:
+      test: ["CMD", "mariadb" ,"-h", "127.0.0.1", "-u", "anonymizationUser", "-panonymizationPswd"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s  
+  
+
+  anonymization_docker:
+    build:
+      context: .
+      dockerfile: docker/anonymization_docker/Dockerfile
+    platform: linux/amd64
+    networks:
+      - privatenet
+    ports:
+      - 8080:8080
+    depends_on:
+      mariadb:
+        condition: "service_healthy"
+    volumes:
+        - type: bind
+          source: ./anonymization_docker
+          target: /anonymization_docker/anonymization_docker
+        - type: bind
+          source: ./config
+          target: /anonymization_docker/config
+    command: >
+        sh -c "cd ./anonymization_docker && gunicorn --bind 0.0.0.0:8080 --reload app:application"
+
+volumes:
+  mariadb_data:

@@ -235,7 +235,7 @@ def SOMAnalysis():
                 YclassName = ""
 
             MaxIt = int(request.form.get('MaxIt'))
-            sigma = int(request.form.get('sigma'))
+            sigma = float(request.form.get('sigma'))
             ensureK = True if request.form.get('ensureK') is not None else False
 
             fileData = Backend.GetDatasetFileData(inFilePath)

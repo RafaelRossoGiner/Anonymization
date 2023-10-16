@@ -368,8 +368,7 @@ class TaxonomyForest:
 
         # Generate a dictionary containing the clustered data points, separated according to the SOM results.
         clusters = {
-            cl_id: self.dataFrame[self.dataFrame.equivalence_class == clusterIDs[cl_id]].drop('equivalence_class',
-                                                                                              axis=1).copy()
+            cl_id: self.dataFrame[adjusted_cluster == clusterIDs[cl_id]].drop('equivalence_class', axis=1).copy()
             for cl_id in range(n_clusters)}
 
         # Generate centroids
@@ -428,6 +427,15 @@ class TaxonomyForest:
             index = record.__dict__['_name']
             adjusted_cluster[index] = best_cluster
 
+        # Recalculate remaining clusters
+        clusterIDs = adjusted_cluster[adjusted_cluster != -1].unique()
+        n_clusters = len(clusterIDs)
+        clusters = {
+            cl_id: self.dataFrame[adjusted_cluster == clusterIDs[cl_id]].drop('equivalence_class', axis=1).copy()
+            for cl_id in range(n_clusters)}
+
+        # centroids = {int(cl_id): self.oka_centroid(cluster) for cl_id, cluster in clusters.items()}
+
         # Collect any record in isolated clusters
         self.progress = tqdm.tqdm(clusters.copy().items(), total=n_clusters)
         self.progress.set_description("Collecting spare records from isolated clusters.")
@@ -442,10 +450,16 @@ class TaxonomyForest:
             clusters.pop(cl_id)
             centroids.pop(cl_id)
 
-        for cl_id, cluster in clusters.items():
-            print("\n", cl_id, cluster.shape[0])
+        # Recalculate remaining clusters
+        clusterIDs = adjusted_cluster[adjusted_cluster != -1].unique()
+        n_clusters = len(clusterIDs)
+        clusters = {
+            cl_id: self.dataFrame[adjusted_cluster == clusterIDs[cl_id]].drop('equivalence_class', axis=1).copy()
+            for cl_id in range(n_clusters)}
 
-        # Distribute remaining records anywhere
+        centroids = {int(cl_id): self.oka_centroid(cluster) for cl_id, cluster in clusters.items()}
+
+        # Distribute remaining data to their closest cluster
         R = self.dataFrame[adjusted_cluster == -1]
         self.progress = tqdm.trange(R.shape[0])
         self.progress.set_description("Distributing remaining records")
@@ -462,12 +476,25 @@ class TaxonomyForest:
                                      self.numerical_attribute_ranges.values)
                 if d <= min_d:
                     min_d = d
-                    best_cluster = cluster_id
+                    best_cluster = clusterIDs[cluster_id]
 
             index = record.__dict__['_name']
             adjusted_cluster[index] = best_cluster
 
         self.dataFrame['equivalence_class'] = adjusted_cluster
+
+        clusterIDs = self.dataFrame['equivalence_class'].unique()
+        n_clusters = len(clusterIDs)
+
+        # Recalculate clusters
+        clusters = {
+            cl_id: self.dataFrame[self.dataFrame.equivalence_class == clusterIDs[cl_id]].drop('equivalence_class',
+                                                                                              axis=1).copy()
+            for cl_id in range(n_clusters)}
+
+        # Recalculate centroids
+        centroids = {int(cl_id): self.oka_centroid(cluster)
+                     for cl_id, cluster in clusters.items()}
 
         inverseLabels = {attr: {labId: lab for lab, labId in self.trees[attr].labels.items()} for attr in self.cat_attr}
 

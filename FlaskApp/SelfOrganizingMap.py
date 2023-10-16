@@ -265,6 +265,7 @@ class SOM:
 
             # Scale centroids and convert to list for parsing
             classificationIDs = self.dataFrame['equivalence_class']
+            clusterLabels = classificationIDs.unique()
             for key, centroid in centroids.items():
                 centroid = centroid * self.rangeNumValues + self.minNumValues
                 centroids[key] = centroid.tolist()
@@ -353,16 +354,24 @@ class SOM:
         if startingIteration == 0:
             self.weight_vectors = np.random.normal(size=(self.n_units, self.n_features))
 
-        self.__neighbour_scores = np.zeros((self.n_units, self.n_units), dtype=np.float32)
-
         # Prepare matrix to store hits
         self.hit_map = np.zeros((self.n_units,), dtype=np.float32)
 
-        self.progress = tqdm.trange(self.n_units)
-        self.progress.set_description('Precalculating neighbour scores')
-        for u in self.progress:
+        # Calculate positions in square topology
+        __neighbour_pos = np.ndarray((self.n_units, 2))
+        for cell in range(self.n_units):
+            __neighbour_pos[cell, :] = np.array([cell // self.squareLength, cell % self.squareLength])
+
+        # Calculate manhattan distance
+        self.__neighbour_scores = 1 - cdist(__neighbour_pos, __neighbour_pos, metric='cityblock')
+
+        # Normalize and apply gaussian scaling according to the selected sigma
+        minScor = np.min(self.__neighbour_scores)
+        rangScor = np.max(self.__neighbour_scores) - minScor
+        self.__neighbour_scores = (self.__neighbour_scores-minScor)/rangScor
+        for u in range(self.n_units):
             for v in range(self.n_units):
-                self.__neighbour_scores[u, v] = self.neighbourhood_function_gaussian(u, v)
+                self.__neighbour_scores[u][v] *= norm.pdf(x=self.__neighbour_scores[u][v], loc=1, scale=self.sigma)
 
         # Train the SOM
         totalIterations = self.epochs * self.n_data_points
